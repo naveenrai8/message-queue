@@ -2,10 +2,13 @@ package com.nr.messagequeuesql.dto;
 
 import lombok.Builder;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
-public record MessageResponseDto (
-        List<String> messages
-){
+public record MessageResponseDto(
+        String messages,
+        UUID messageId,
+        LocalDateTime leaseExpiredAt
+) {
 }

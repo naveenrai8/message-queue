@@ -5,8 +5,13 @@ import com.nr.messagequeuesql.dto.MessageResponseDto;
 import com.nr.messagequeuesql.service.MessageQueueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/messages")
@@ -16,14 +21,20 @@ public class MessageQueueController {
 
     private final MessageQueueService service;
 
+    @Value("${app.leaseExpiredAt:10}")
+    private int LEASE_EXPIRED_DEFAULT_TIME;
+
     @GetMapping
-    public ResponseEntity<MessageResponseDto> getMessages(@RequestParam(required = false) Integer count) {
+    public ResponseEntity<List<MessageResponseDto>> getMessages(
+            @RequestParam() UUID clientId,
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) Optional<Integer> leaseExpiredAtInSeconds) {
         log.info("Received request to get all messages");
         if (count == null) {
             count = 1;
         }
 
-        return ResponseEntity.ok(this.service.getMessagesByCount(count));
+        return ResponseEntity.ok(this.service.getMessagesByCount(clientId, count, leaseExpiredAtInSeconds.orElse(LEASE_EXPIRED_DEFAULT_TIME)));
     }
 
     @PostMapping
@@ -32,9 +43,9 @@ public class MessageQueueController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable String id) {
-        this.service.deleteMessage(id);
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMessage(@RequestParam UUID messageId, @RequestParam UUID clientId) {
+        this.service.deleteMessage(messageId, clientId);
         return ResponseEntity.ok().build();
     }
 }
