@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: message-queue-sql-service
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/queuedb
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+# swagger-ui custom path
+springdoc:
+  swagger-ui.path: /swagger-ui.html
