@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface MessageQueueRepository extends JpaRepository<Message, UUID> {
 
     @Query(
-            value = "SELECT * from messages where assigned_to is null or lease_expired_at < :leaseExpiredAtTime limit :count for update skip locked",
+            value = "SELECT * from messages where assigned_to is null or lease_expired_at < :leaseExpiredAtTime  order by created_at asc  limit :count for update skip locked",
             nativeQuery = true)
     List<Message> findNotAssignedNMessages(int count, LocalDateTime leaseExpiredAtTime);
 

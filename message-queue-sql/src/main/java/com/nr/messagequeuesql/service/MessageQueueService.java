@@ -30,6 +30,7 @@ public class MessageQueueService {
                 message ->
                 {
                     LocalDateTime expiredAtInSeconds = LocalDateTime.now().plusSeconds(leaseExpiredAtInSeconds);
+                    System.out.println(message.toString() + " " + expiredAtInSeconds);
                     this.repository.updateAssignedToAndLeaseExpiredAtTime(clientId, expiredAtInSeconds, message.getId());
                     messages.add(MessageResponseDto.builder()
                             .messageId(message.getId())
@@ -44,6 +45,7 @@ public class MessageQueueService {
     public void addMessage(MessageRequestDto messageRequestDto) {
         var savedMessage = this.repository.save(Message.builder()
                 .message(messageRequestDto.message())
+                .createdAt(LocalDateTime.now())
                 .build());
         log.info("Message saved successfully. {}", savedMessage);
     }
