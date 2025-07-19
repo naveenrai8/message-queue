@@ -21,6 +21,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(length = 500)
     private String message;
 
     private UUID assignedTo;
