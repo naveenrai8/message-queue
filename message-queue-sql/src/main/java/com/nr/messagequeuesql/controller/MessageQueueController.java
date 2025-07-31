@@ -29,7 +29,7 @@ public class MessageQueueController {
             @RequestParam() UUID clientId,
             @RequestParam(required = false) Integer count,
             @RequestParam(required = false) Optional<Integer> leaseExpiredAtInSeconds) {
-        log.info("Received request to get all messages");
+//        log.info("Received request to get all messages");
         if (count == null) {
             count = 1;
         }

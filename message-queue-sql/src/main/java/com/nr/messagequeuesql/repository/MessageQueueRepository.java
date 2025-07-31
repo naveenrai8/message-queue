@@ -14,9 +14,27 @@ import java.util.UUID;
 public interface MessageQueueRepository extends JpaRepository<Message, UUID> {
 
     @Query(
-            value = "SELECT * from messages where assigned_to is null or lease_expired_at < :leaseExpiredAtTime  order by created_at asc  limit :count for update skip locked",
-            nativeQuery = true)
-    List<Message> findNotAssignedNMessages(int count, LocalDateTime leaseExpiredAtTime);
+            value = """
+    (
+      SELECT *
+      FROM messages
+      WHERE assigned_to IS NULL
+      LIMIT :count
+      FOR UPDATE SKIP LOCKED
+    )
+    UNION ALL
+    (
+      SELECT *
+      FROM messages
+      WHERE lease_expired_at < :currentDateTime
+      LIMIT :count
+      FOR UPDATE SKIP LOCKED
+    )
+    LIMIT :count;
+    
+""", nativeQuery = true
+    )
+    List<Message> findAvailableMessages(int count, LocalDateTime currentDateTime);
 
     @Modifying
     @Query(
@@ -30,5 +48,9 @@ public interface MessageQueueRepository extends JpaRepository<Message, UUID> {
             value = "DELETE from messages where id = ? and assigned_to = ?",
             nativeQuery = true
     )
+//    @Query(
+//            value = "UPDATE messages set lease_expired_at = FROM_UNIXTIME(2147483600)  where id = ? and assigned_to = ?",
+//            nativeQuery = true
+//    )
     void deleteByIdForClient(UUID messageId, UUID clientId);
 }

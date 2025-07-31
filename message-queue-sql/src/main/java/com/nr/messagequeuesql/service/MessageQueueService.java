@@ -25,12 +25,11 @@ public class MessageQueueService {
     @Transactional
     public List<MessageResponseDto> getMessagesByCount(UUID clientId, Integer count, int leaseExpiredAtInSeconds) {
         List<MessageResponseDto> messages = new ArrayList<>();
-        var res = this.repository.findNotAssignedNMessages(count, LocalDateTime.now());
+        var res = this.repository.findAvailableMessages(count, LocalDateTime.now());
         res.forEach(
                 message ->
                 {
                     LocalDateTime expiredAtInSeconds = LocalDateTime.now().plusSeconds(leaseExpiredAtInSeconds);
-                    System.out.println(message.toString() + " " + expiredAtInSeconds);
                     this.repository.updateAssignedToAndLeaseExpiredAtTime(clientId, expiredAtInSeconds, message.getId());
                     messages.add(MessageResponseDto.builder()
                             .messageId(message.getId())
